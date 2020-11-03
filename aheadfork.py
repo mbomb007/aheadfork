@@ -10,6 +10,7 @@ import sys
 import json
 import time
 import requests
+import getpass
 from math import ceil
 
 GITHUB_API_TOKEN = ""
@@ -87,13 +88,19 @@ def get_forks():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: python3 %s GITHUB_API_TOKEN REPO" % sys.argv[0])
-        print("\teg: python3 %s ab124942710137429ffdac322314701471234411 Ovi3/BurpBeautifier")
+    if len(sys.argv) >= 3:
+        GITHUB_API_TOKEN = sys.argv[1].strip()
+        REPO = sys.argv[2].strip()
+    elif len(sys.argv) == 2:
+        GITHUB_API_TOKEN = getpass.getpass(prompt="GitHub API Token: ")
+        REPO = sys.argv[1].strip()
+    else:
+        print("Usage 1: python3 %s GITHUB_API_TOKEN REPO" % sys.argv[0])
+        print("\teg: python3 %s ab124942710137429ffdac322314701471234411 Ovi3/BurpBeautifier" % sys.argv[0])
+        
+        print("Usage 2: python3 %s REPO" % sys.argv[0])
+        print("\teg: python3 %s Ovi3/BurpBeautifier (will prompt for API key)" % sys.argv[0])
         exit(0)
-
-    GITHUB_API_TOKEN = sys.argv[1].strip()
-    REPO = sys.argv[2].strip()
 
     try:
         forks = get_forks()
