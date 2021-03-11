@@ -110,10 +110,10 @@ if __name__ == "__main__":
             forks = sorted(forks, key=lambda i: (i.get("ahead_by"), i.get("pushed_at")), reverse=True)
 
             print("Done")
-            print("%-48s%-30s%-8s%-8s%-8s%-8s" % ("url", "last push", "star", "fork", "ahead", "behind"))
+            print("%-48s%-30s%-8s%-8s%-8s%-8s" % ("name", "last push", "star", "fork", "ahead", "behind"))
             for fork in forks:
                 print("%-48s%-30s%-8d%-8d%-8d%-8d" % (
-                    "https://www.github.com/" + fork.get("full_name"),
+                    fork.get("full_name"),
                     fork.get("pushed_at"),
                     fork.get("stargazers_count"),
                     fork.get("forks_count"),
