@@ -47,6 +47,38 @@ def get_forks():
         print("[-] Get repo info failed: %s" % resp.text)
         return []
     forks_count = json.loads(resp.text).get("forks")
+            
+    # determine branches of repo likely to be the primary branch
+    branches_url = "https://api.github.com/repos/%s/branches"
+    branches = session.get(branches_url % REPO, headers={'Accept': 'application/vnd.github.v3+json'})
+    primary_branch_options = []
+    for branch in branches:
+        branch_name = branch.get("name")
+        if branch_name == "master" || branch_name == "main" || branch.get("protected"):
+            primary_branch_options.append(branch_name)
+    
+    # ask user to choose branch if cannot infer primary branch
+    if len(primary_branch_options) == 0:
+        print('Could not determine primary branch for repo.')
+        branch_names = str([branch.get("name") for branch in branches])
+        primary_branch = input('Please enter the name of the primary branch. Branch list: \n%s\n' % branch_names)
+        if primary_branch not in branch_names:
+            print('Invalid branch name.')
+            exit(1)
+    elif len(primary_branch_options) > 1:
+        print('Could not determine primary branch for repo. %n options found.')
+        branch_names = str(primary_branch_options)
+        primary_branch = input('Please enter the name of the primary branch. Branch list: \n%s\n' % branch_names)
+        if primary_branch not in branch_names:
+            # see if a valid branch that wasn't a likely candidate was entered
+            for branch in branches:
+                if branch.get('name') == primary_branch:
+                    break;
+            else:
+                print('Invalid branch name.')
+                exit(1)
+    else:
+         primary_branch = primary_branch_options[0]
 
     # get forks
     page_count = ceil(forks_count / 30)  # 30 items each page
@@ -69,8 +101,9 @@ def get_forks():
                 "forks_count": repo.get("forks_count")
             })
 
-    # compare (ONLY compare master branch)
-    compare_url = "https://api.github.com/repos/%s/compare/%s:master...master"
+    # compare (ONLY compare primary branch)
+    compare_branches = "%s...%s" % (primary_branch, primary_branch)
+    compare_url = "https://api.github.com/repos/%s/compare/%s:" + compare_branches
     for fork in forks:
         if DEBUG:
             print("[*] compare %s" % fork.get("full_name"))
