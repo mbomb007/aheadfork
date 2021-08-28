@@ -50,11 +50,11 @@ def get_forks():
             
     # determine branches of repo likely to be the primary branch
     branches_url = "https://api.github.com/repos/%s/branches"
-    branches = session.get(branches_url % REPO, headers={'Accept': 'application/vnd.github.v3+json'})
+    branches = session.get(branches_url % REPO, headers={'Accept': 'application/vnd.github.v3+json'}).json()
     primary_branch_options = []
     for branch in branches:
         branch_name = branch.get("name")
-        if branch_name == "master" || branch_name == "main" || branch.get("protected"):
+        if branch_name == "master" or branch_name == "main" or branch.get("protected"):
             primary_branch_options.append(branch_name)
     
     # ask user to choose branch if cannot infer primary branch
@@ -118,7 +118,6 @@ def get_forks():
         })
 
     return forks
-
 
 if __name__ == "__main__":
     if len(sys.argv) >= 3:
