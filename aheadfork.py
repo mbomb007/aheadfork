@@ -48,10 +48,10 @@ def get_forks():
         print("[-] Get repo info failed: %s" % resp.text)
         return []
     forks_count = json.loads(resp.text).get("forks")
-            
+
     branches_url = "https://api.github.com/repos/%s/branches"
     branches = session.get(branches_url % REPO, headers={'Accept': 'application/vnd.github.v3+json'}).json()
-    
+
     if len(branches) == 1:
         # There is only one branch, so use it instead of looking for something non-existent.
         primary_branch = branches[0]
@@ -88,7 +88,7 @@ def get_forks():
 
     # Get forks
     # 30 items per page
-    page_count = ceil(forks_count / 30)  
+    page_count = ceil(forks_count / 30)
     for page in range(1, page_count + 1):
         params = {"page": page}
         forks_url = "https://api.github.com/repos/%s/forks" % REPO
@@ -135,11 +135,17 @@ if __name__ == "__main__":
         REPO = sys.argv[1].strip()
     else:
         print("Usage 1: python3 %s GITHUB_API_TOKEN REPO" % sys.argv[0])
-        print("\teg: python3 %s ab124942710137429ffdac322314701471234411 Ovi3/BurpBeautifier" % sys.argv[0])
-        
+        print("\tExample: python3 %s ab124942710137429ffdac322314701471234411 Ovi3/BurpBeautifier" % sys.argv[0])
+
         print("Usage 2: python3 %s REPO" % sys.argv[0])
-        print("\teg: python3 %s Ovi3/BurpBeautifier (will prompt for API key)" % sys.argv[0])
+        print("\tExample: python3 %s Ovi3/BurpBeautifier (will prompt for API key)" % sys.argv[0])
+        print("\tExample: python3 %s https://github.com/Ovi3/BurpBeautifier (will prompt for API key)" % sys.argv[0])
         exit(0)
+
+    # Remove site name from repo argument if found.
+    site_name = "github.com/"
+    if site_name in REPO:
+        REPO = REPO[REPO.index(site_name) + len(site_name):]
 
     try:
         forks = get_forks()
